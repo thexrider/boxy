@@ -7,9 +7,14 @@ TCP socket. You make boxes, borrow boxes, point arrows at boxes, and write
 tiny programs that do real things. Errors are gentle and try to suggest a
 fix — Boxy never shouts.
 
-Aimed at kids around 7 to 10. Their grown-up reading along will recognise
-variables, the stack and the heap, pointers, threads, mutexes, file handles
-and TCP sockets — all hiding behind boxes, helpers and doors.
+Aimed at kids. Grown-ups reading along will recognise variables, the stack
+and the heap, pointers, threads, mutexes, file handles and TCP sockets —
+all hiding behind boxes, helpers and doors.
+
+A note for the curious: `borrow` and `return` are deliberately gentler
+words than C's `malloc` and `free`, but they map one-to-one. Same memory
+model, same kind of bug if you forget to give the box back, same kind of
+fix.
 
 ## Install
 
