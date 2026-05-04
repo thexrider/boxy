@@ -1,23 +1,9 @@
 /*
- * Boxy v1.0
- * A real programming language for kids 7-10.
- *
+ * Boxy 1.0 - a small programming language for kids.
  * Copyright (C) 2026 The_X_Rider <the_x_rider@proton.me>
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version. See LICENSE for the full text.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
  * Build: cc boxy.c -o boxy -pthread -lm
- * Run:   ./boxy run app.bx
- *        ./boxy lesson 1
- *        ./boxy --help
  */
 
 #include <arpa/inet.h>
@@ -146,7 +132,7 @@ struct Interpreter {
     pthread_mutex_t state_mutex;
 };
 
-/* ---------- help text --------------------------------------------------- */
+/* help text */
 
 static const char *HELP_TEXT =
 "Boxy " BOXY_VERSION "\n"
@@ -250,7 +236,7 @@ static const char *HELP_TEXT =
 "  many lines\n"
 "  ###\n";
 
-/* ---------- error helpers ----------------------------------------------- */
+/* errors */
 
 static const char *KIND_WORDS[] = { "Hmm,", "Oops,", "Wait," };
 
@@ -307,7 +293,7 @@ static void bx_error_suggest(Line line, const char *msg, const char *what,
     exit(1);
 }
 
-/* ---------- string helpers ---------------------------------------------- */
+/* strings */
 
 static void trim(char *s) {
     char *start = s;
@@ -347,7 +333,7 @@ static void make_name(const char *input, char *out) {
     }
 }
 
-/* ---------- value helpers ----------------------------------------------- */
+/* values */
 
 static Value none_value(void) { Value v; memset(&v, 0, sizeof(v)); v.type = VALUE_NONE; return v; }
 static Value number_value(double n) { Value v; memset(&v, 0, sizeof(v)); v.type = VALUE_NUMBER; v.number = n; return v; }
@@ -411,7 +397,7 @@ static void print_value(Interpreter *it, Value v, const char *label) {
     else printf("%s\n", buf);
 }
 
-/* ---------- symbol tables ----------------------------------------------- */
+/* symbol tables */
 
 static Var *find_var_locked(Interpreter *it, const char *name) {
     for (int i = 0; i < it->var_count; i++) if (strcmp(it->vars[i].name, name) == 0) return &it->vars[i];
@@ -592,7 +578,6 @@ static NamedLock *get_lock(Interpreter *it, const char *raw) {
     return lock;
 }
 
-/* collect known names for typo suggestions */
 static int collect_names(Interpreter *it, const char *names[], int max) {
     int n = 0;
     for (int i = 0; i < it->box_count && n < max; i++)   names[n++] = it->boxes[i].name;
@@ -602,7 +587,7 @@ static int collect_names(Interpreter *it, const char *names[], int max) {
     return n;
 }
 
-/* ---------- string parsing ---------------------------------------------- */
+/* string splitting */
 
 static int split_around(const char *input, const char *middle, char *left, char *right) {
     const char *pos = strstr(input, middle);
@@ -667,7 +652,7 @@ static void unquote(const char *s, char *out) {
     out[o] = '\0';
 }
 
-/* ---------- evaluator --------------------------------------------------- */
+/* expression evaluator */
 
 static Value eval_expr(Interpreter *it, const char *raw, Line line);
 static void run_block(Interpreter *it, Line *lines, int start, int end);
@@ -859,9 +844,6 @@ static Value eval_expr(Interpreter *it, const char *raw, Line line) {
     if (!strcmp(expr, "no")      || !strcmp(expr, "false") || !strcmp(expr, "off")) return bool_value(0);
     if (!strcmp(expr, "nothing") || !strcmp(expr, "null"))                          return none_value();
 
-    if (split_around_outside_quotes(expr, " and ",          left, right) && looks_like_identifier(left)==0 && looks_like_identifier(right)==0) {
-        /* fall-through to default — 'and' alone is too ambiguous */
-    }
     if (split_around_outside_quotes(expr, " starts with ",     left, right)) return eval_binary(it, expr, " starts with ",     13, line);
     if (split_around_outside_quotes(expr, " ends with ",       left, right)) return eval_binary(it, expr, " ends with ",       14, line);
     if (split_around_outside_quotes(expr, " contains ",        left, right)) return eval_binary(it, expr, " contains ",        15, line);
@@ -928,7 +910,6 @@ static Value eval_expr(Interpreter *it, const char *raw, Line line) {
         return b->value;
     }
 
-    /* size of box / size of word */
     if (!strcmp(expr, "size of box")     || !strcmp(expr, "size of number")) return number_value((double)sizeof(double));
     if (!strcmp(expr, "size of word")    || !strcmp(expr, "size of letter")) return number_value((double)sizeof(char));
     if (!strcmp(expr, "size of arrow")   || !strcmp(expr, "size of pointer"))return number_value((double)sizeof(void *));
@@ -960,7 +941,6 @@ static Value eval_expr(Interpreter *it, const char *raw, Line line) {
         return number_value(0);
     }
 
-    /* lookup as box/var/constant */
     {
         char nm[MAX_NAME]; make_name(expr, nm);
         Box *b = find_box(it, expr);
@@ -980,7 +960,6 @@ static Value eval_expr(Interpreter *it, const char *raw, Line line) {
         if (c) return c->value;
     }
 
-    /* unknown identifier? friendly error with suggestion */
     if (looks_like_identifier(expr)) {
         const char *names[MAX_SYMBOLS * 4]; int n = collect_names(it, names, MAX_SYMBOLS * 4);
         char nm[MAX_NAME]; make_name(expr, nm);
@@ -995,7 +974,7 @@ static Value eval_expr(Interpreter *it, const char *raw, Line line) {
     return text_value(expr);
 }
 
-/* ---------- block / control flow ---------------------------------------- */
+/* control flow */
 
 static int parse_assignment(const char *text, char *name, char *expr) {
     if (split_around_outside_quotes(text, " is ",  name, expr)) return 1;
@@ -1229,12 +1208,11 @@ static void run_block(Interpreter *it, Line *lines, int start, int end) {
     }
 }
 
-/* ---------- single-line statements -------------------------------------- */
+/* statements */
 
 static void say_expression(Interpreter *it, const char *expr_in, Line line) {
     char expr[MAX_LINE]; strncpy(expr, expr_in, sizeof(expr) - 1); expr[sizeof(expr) - 1] = '\0'; trim(expr);
 
-    /* comma-separated concat (outside quotes) */
     int has_comma = 0; int in_q = 0;
     for (const char *p = expr; *p; p++) { if (*p == '"') in_q = !in_q; if (!in_q && *p == ',') { has_comma = 1; break; } }
     if (has_comma) {
@@ -1263,7 +1241,6 @@ static void say_expression(Interpreter *it, const char *expr_in, Line line) {
         return;
     }
     Value v = eval_expr(it, expr, line);
-    /* if expression is a bare box name, label the visual print */
     char label[MAX_NAME] = "";
     if (it->visual && v.type != VALUE_LIST && find_box(it, expr)) {
         char nm[MAX_NAME]; make_name(expr, nm);
@@ -1277,7 +1254,6 @@ static void execute_line(Interpreter *it, Line line) {
     strncpy(t, line.text, sizeof(t) - 1); t[sizeof(t) - 1] = '\0'; trim(t);
     if (!t[0] || t[0] == '#') return;
 
-    /* say / show */
     if (starts_with(t, "say ") || starts_with(t, "print ") || starts_with(t, "tell ")) {
         char *sp = strchr(t, ' ');
         say_expression(it, sp ? sp + 1 : "", line);
@@ -1289,7 +1265,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* ask */
     if (starts_with(t, "ask ")) {
         char question[MAX_LINE], var[MAX_NAME], input[MAX_TEXT];
         char *q1 = strchr(t, '"'), *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
@@ -1317,7 +1292,6 @@ static void execute_line(Interpreter *it, Line line) {
             "ask \"what is your name?\" save name");
     }
 
-    /* make a box / make an box */
     if (starts_with(t, "make a box called ")  ||
         starts_with(t, "make an box called ")) {
         const char *name = strstr(t, " called ") + 8;
@@ -1325,7 +1299,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* borrow a box / borrow an box */
     if (starts_with(t, "borrow a box called ")  ||
         starts_with(t, "borrow an box called ")) {
         const char *name = strstr(t, " called ") + 8;
@@ -1333,7 +1306,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* make an arrow called X to Y / make a arrow / make a pointer / make an pointer */
     if (starts_with(t, "make a arrow called ")    ||
         starts_with(t, "make an arrow called ")   ||
         starts_with(t, "make a pointer called ")  ||
@@ -1366,7 +1338,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* return X (give back a borrowed box) */
     if (starts_with(t, "return ")) {
         char name[MAX_NAME]; strcpy(name, t + 7); trim(name);
         Box *bx = find_box(it, name);
@@ -1391,7 +1362,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* hold / let go */
     if (starts_with(t, "hold "))   { pthread_mutex_lock(&get_lock(it, t + 5)->mutex); return; }
     if (starts_with(t, "let go ")) {
         NamedLock *l = get_lock(it, t + 7);
@@ -1403,7 +1373,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* give = function return */
     if (starts_with(t, "give ")) {
         if (!it->is_function) bx_error(line,
             "'give' only works inside a function.",
@@ -1415,7 +1384,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* remember NAME as VALUE */
     if (starts_with(t, "remember ")) {
         char rest[MAX_LINE]; strcpy(rest, t + 9);
         char cname[MAX_NAME], cval[MAX_LINE];
@@ -1427,7 +1395,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* sleep N [seconds|ms] */
     if (starts_with(t, "sleep ")) {
         char rest[MAX_LINE]; strcpy(rest, t + 6); trim(rest);
         double mult = 1.0;
@@ -1443,11 +1410,9 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* stop / skip */
     if (!strcmp(t, "stop")) { it->loop_break = 1; return; }
     if (!strcmp(t, "skip")) { it->loop_skip  = 1; return; }
 
-    /* open door called X on port N */
     if (starts_with(t, "open door called ")) {
         char rest[MAX_LINE]; strcpy(rest, t + 17); trim(rest);
         char alias[MAX_NAME], port_s[MAX_LINE];
@@ -1497,7 +1462,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* wait for knock on X save Y */
     if (starts_with(t, "wait for knock on ")) {
         char rest[MAX_LINE]; strcpy(rest, t + 18); trim(rest);
         char door_alias[MAX_NAME], guest_alias[MAX_NAME];
@@ -1531,7 +1495,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* call door at "host" on port N save Y */
     if (starts_with(t, "call door ")) {
         char *body = t + 10;
         while (*body == ' ') body++;
@@ -1601,7 +1564,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* send EXPR to ALIAS */
     if (starts_with(t, "send ") && strstr(t, " to ")) {
         char what[MAX_LINE], alias[MAX_LINE];
         split_around_outside_quotes(t + 5, " to ", what, alias);
@@ -1626,7 +1588,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* open file "..." called X [to read] [to append] */
     if (starts_with(t, "open file ")) {
         char *q1 = strchr(t, '"'), *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
         if (!q1 || !q2) bx_error(line,
@@ -1670,7 +1631,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* write WHAT to ALIAS */
     if (starts_with(t, "write ") && strstr(t, " to ")) {
         char what[MAX_LINE], alias[MAX_LINE];
         split_around_outside_quotes(t + 6, " to ", what, alias);
@@ -1686,7 +1646,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* read ALIAS save VAR */
     if (starts_with(t, "read ") && strstr(t, " save ")) {
         char alias[MAX_LINE], varname[MAX_NAME];
         split_around(t + 5, " save ", alias, varname);
@@ -1721,7 +1680,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* close ALIAS */
     if (starts_with(t, "close ")) {
         char alias[MAX_NAME]; strcpy(alias, t + 6); trim(alias);
         Socket *sock = find_socket(it, alias);
@@ -1738,10 +1696,8 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* call funcname with ... (statement form, ignore return) */
     if (starts_with(t, "call ")) { eval_expr(it, t, line); return; }
 
-    /* wait for HELPER */
     if (starts_with(t, "wait for ") || starts_with(t, "wait ")) {
         char name[MAX_NAME];
         if (starts_with(t, "wait for ")) strcpy(name, t + 9);
@@ -1765,7 +1721,6 @@ static void execute_line(Interpreter *it, Line line) {
             names, n);
     }
 
-    /* how many LIST */
     if (starts_with(t, "how many ")) {
         Value v = eval_expr(it, t + 9, line);
         if (v.type == VALUE_LIST)      printf("%d\n", v.list_count);
@@ -1774,7 +1729,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* add ITEM to LIST */
     if (starts_with(t, "add ") && strstr(t, " to ")) {
         char item[MAX_LINE], list_name[MAX_LINE];
         split_around_outside_quotes(t + 4, " to ", item, list_name);
@@ -1797,7 +1751,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* take ITEM from LIST / remove ITEM from LIST */
     if ((starts_with(t, "take ") || starts_with(t, "remove ")) && strstr(t, " from ")) {
         char item[MAX_LINE], list_name[MAX_LINE];
         split_around_outside_quotes(strchr(t, ' ') + 1, " from ", item, list_name);
@@ -1823,7 +1776,6 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* put VALUE in TARGET (box, or 'X's box' for arrow write) */
     if (starts_with(t, "put ") && strstr(t, " in ")) {
         char value_text[MAX_LINE], target_text[MAX_LINE];
         split_around_outside_quotes(t + 4, " in ", value_text, target_text);
@@ -1888,13 +1840,11 @@ static void execute_line(Interpreter *it, Line line) {
         return;
     }
 
-    /* assignment: NAME is/are EXPR */
     if (parse_assignment(t, a, b)) {
         if (find_constant(it, a)) bx_error(line,
             "You tried to change something you said to remember. Use a different name.",
             "remembered things stay the same");
         Value rv = eval_expr(it, b, line);
-        /* if a box exists, write to it; else set a variable */
         char nm[MAX_NAME]; make_name(a, nm);
         Box *bx = find_box(it, a);
         if (bx) {
@@ -1915,9 +1865,8 @@ static void execute_line(Interpreter *it, Line line) {
         "say \"hello\"   /   make a box called age   /   put 7 in age");
 }
 
-/* ---------- file loading ------------------------------------------------ */
+/* file loading */
 
-/* Push a logical line into the array. */
 static void push_line(Line *lines, int *count, int number, const char *text) {
     if (*count >= MAX_LINES) {
         fprintf(stderr, "Hmm, that program has too many lines.\n");
@@ -1932,11 +1881,9 @@ static void push_line(Line *lines, int *count, int number, const char *text) {
     (*count)++;
 }
 
-/* Expand a line that contains '{ ... }' on the same line into multiple logical
- * lines. Respects quotes. Handles "} otherwise {" by emitting separate lines. */
+/* Splits one-line "if X { body } otherwise { body }" forms into separate
+ * logical lines so the block parser can handle them. */
 static void expand_inline_braces(const char *raw, int number, Line *lines, int *count) {
-    /* Quick check: does line contain a '{' that isn't at the end? */
-    int has_inline = 0;
     int in_q = 0;
     const char *first_brace = NULL;
     for (const char *p = raw; *p; p++) {
@@ -1944,23 +1891,15 @@ static void expand_inline_braces(const char *raw, int number, Line *lines, int *
         if (!in_q && *p == '{') { first_brace = p; break; }
     }
     if (!first_brace) { push_line(lines, count, number, raw); return; }
-
-    /* If '{' is the last non-space character, no inline body to split. */
     {
         const char *p = first_brace + 1;
         while (*p && isspace((unsigned char)*p)) p++;
         if (!*p) { push_line(lines, count, number, raw); return; }
-        has_inline = 1;
     }
-    if (!has_inline) { push_line(lines, count, number, raw); return; }
 
-    /* Walk and split: open part up to '{', then body up to matching '}', then
-     * any tail (e.g. " otherwise {" or further content). */
     char buf[MAX_LINE]; strncpy(buf, raw, sizeof(buf) - 1); buf[sizeof(buf) - 1] = '\0';
-
     char *cursor = buf;
     while (*cursor) {
-        /* find next unquoted '{' */
         char *open = NULL;
         in_q = 0;
         for (char *p = cursor; *p; p++) {
@@ -1968,12 +1907,10 @@ static void expand_inline_braces(const char *raw, int number, Line *lines, int *
             if (!in_q && *p == '{') { open = p; break; }
         }
         if (!open) {
-            /* no more braces — emit the rest */
             char rest[MAX_LINE]; strcpy(rest, cursor); trim(rest);
             if (rest[0]) push_line(lines, count, number, rest);
             return;
         }
-        /* find matching unquoted '}' */
         char *close = NULL;
         int depth = 0;
         in_q = 0;
@@ -1984,11 +1921,9 @@ static void expand_inline_braces(const char *raw, int number, Line *lines, int *
             else if (*p == '}') { depth--; if (depth == 0) { close = p; break; } }
         }
         if (!close) {
-            /* unbalanced; just emit the line and let the parser complain */
             push_line(lines, count, number, cursor);
             return;
         }
-        /* emit the head up to and including '{' */
         char head[MAX_LINE];
         size_t hl = (size_t)(open - cursor + 1);
         if (hl >= sizeof(head)) hl = sizeof(head) - 1;
@@ -1996,9 +1931,6 @@ static void expand_inline_braces(const char *raw, int number, Line *lines, int *
         trim(head);
         if (head[0]) push_line(lines, count, number, head);
 
-        /* split body on ';' (outside quotes) — for now we only split on actual
-         * statement boundaries, but ';' is not part of Boxy syntax. The body
-         * is one statement; emit it as one line. */
         char body[MAX_LINE];
         size_t bl = (size_t)(close - open - 1);
         if (bl >= sizeof(body)) bl = sizeof(body) - 1;
@@ -2006,7 +1938,6 @@ static void expand_inline_braces(const char *raw, int number, Line *lines, int *
         trim(body);
         if (body[0]) push_line(lines, count, number, body);
 
-        /* now after '}' */
         cursor = close + 1;
         char *tail = cursor;
         while (*tail && isspace((unsigned char)*tail)) tail++;
@@ -2014,22 +1945,19 @@ static void expand_inline_braces(const char *raw, int number, Line *lines, int *
             push_line(lines, count, number, "}");
             return;
         }
-        /* if it starts with 'otherwise', emit "} otherwise" or "} otherwise {" */
         if (starts_with(tail, "otherwise")) {
             const char *after = tail + 9;
             while (*after && isspace((unsigned char)*after)) after++;
             if (*after == '{') {
                 push_line(lines, count, number, "} otherwise {");
                 cursor = (char *)(after + 1);
-                continue;  /* next loop will find the otherwise body */
+                continue;
             } else {
-                /* "otherwise" without an opening brace right after — bare keyword */
                 push_line(lines, count, number, "} otherwise {");
                 cursor = (char *)after;
                 continue;
             }
         }
-        /* otherwise emit '}' and continue with whatever's after */
         push_line(lines, count, number, "}");
         cursor = tail;
     }
@@ -2057,7 +1985,7 @@ static void init_interpreter(Interpreter *it) {
     pthread_mutex_init(&it->state_mutex, NULL);
 }
 
-/* ---------- post-mortem ------------------------------------------------- */
+/* end-of-program checks for forgotten boxes, files and sockets */
 
 static int report_postmortem(Interpreter *it, int strict) {
     int leaks = 0, files_open = 0, sockets_open = 0;
@@ -2099,7 +2027,7 @@ static int report_postmortem(Interpreter *it, int strict) {
     return strict ? 1 : 0;
 }
 
-/* ---------- main -------------------------------------------------------- */
+/* main */
 
 static void print_banner(void) {
     printf("Boxy %s — a programming language for kids.\n", BOXY_VERSION);
@@ -2114,7 +2042,6 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    /* lesson N */
     if (argc >= 2 && !strcmp(argv[1], "lesson")) {
         if (argc < 3) {
             fprintf(stderr, "Boxy needs a lesson number. Try: boxy lesson 1\n");
