@@ -19,7 +19,7 @@ fix.
 ## Install
 
 ```
-git clone <this-repo> boxy
+git clone https://github.com/thexrider/boxy
 cd boxy
 cc boxy.c -o boxy -pthread -lm
 ```
