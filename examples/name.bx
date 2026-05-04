@@ -1,0 +1,4 @@
+# Ask a question, save the answer in a box, say hello.
+
+ask "what is your name?" save name
+say "hi, ", name, "! welcome to Boxy."

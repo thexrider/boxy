@@ -1,0 +1,24 @@
+# An arrow points at a box. The arrow is not the box —
+# it's like a sticky note saying "the box you want is over there."
+
+make a box called target
+put 100 in target
+
+make an arrow called ptr to target
+
+say "the box 'target' has: ", target
+say "reading through the arrow: ", inside ptr
+
+# We can write THROUGH the arrow:
+put 999 in ptr's box
+say "now the box 'target' has: ", target
+
+# A dangling arrow:
+# If you 'return' a borrowed box while an arrow still points at it,
+# Boxy will refuse to peek through that arrow. Try uncommenting:
+#
+# borrow a box called payload
+# put 42 in payload
+# make an arrow called handle to payload
+# return payload
+# say inside handle

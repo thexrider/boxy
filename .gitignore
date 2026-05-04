@@ -1,0 +1,7 @@
+boxy
+boxy_asan
+boxy_asan.dSYM/
+*.o
+*.dSYM/
+*.bx.bak
+.DS_Store

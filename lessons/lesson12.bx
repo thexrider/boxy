@@ -1,0 +1,30 @@
+# Lesson 12 — doors (a tiny chat over TCP)
+#
+# Two helpers talk to each other through a real network door.
+# One opens a door and waits. The other walks up and knocks.
+
+start helper called server {
+    open door called srv on port 9201
+    wait for knock on srv save guest
+
+    read guest save msg
+    say "server heard: ", msg
+    send "hi back from the server!" to guest
+
+    close guest
+    close srv
+}
+
+# Give the server a moment to open the door before we knock.
+sleep 200 ms
+
+call door at "127.0.0.1" on port 9201 save line
+send "hello from the client" to line
+
+read line save reply
+say "client heard: ", reply
+
+close line
+wait for server
+
+say "you just sent bytes across a real TCP socket!"

@@ -1,0 +1,38 @@
+# Two helpers chatting over a real TCP socket.
+# One opens a door, the other walks through it. They take turns.
+
+start helper called listener {
+    open door called srv on port 9101
+    wait for knock on srv save guest
+
+    read guest save first
+    say "listener heard: ", first
+    send "hi back!" to guest
+
+    read guest save second
+    say "listener heard: ", second
+    send "see you later!" to guest
+
+    close guest
+    close srv
+}
+
+sleep 200 ms
+
+start helper called talker {
+    call door at "127.0.0.1" on port 9101 save line
+    send "hello there" to line
+    read line save r1
+    say "talker heard: ", r1
+
+    send "how are you?" to line
+    read line save r2
+    say "talker heard: ", r2
+
+    close line
+}
+
+wait for talker
+wait for listener
+
+say "the chat is over."

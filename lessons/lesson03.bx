@@ -1,0 +1,9 @@
+# Lesson 3 — asking the user
+#
+# 'ask' shows a question and waits for the person to type something.
+# The answer is saved in a box.
+
+ask "what is your name?" save name
+say "hi, ", name, "! nice to meet you."
+
+# Try this: ask for the favorite color too, and say it back.

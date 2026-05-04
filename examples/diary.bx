@@ -1,0 +1,12 @@
+# Files: write a line, then read it back.
+
+open file "/tmp/boxy_diary.txt" called f
+write "today I learned about Boxy.\n" to f
+write "it has boxes!\n" to f
+close f
+
+open file "/tmp/boxy_diary.txt" called f to read
+read f save text
+say "my diary says:"
+say text
+close f

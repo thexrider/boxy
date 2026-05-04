@@ -1,0 +1,18 @@
+# Lesson 9 — files (a tiny diary)
+#
+# A file is a place on your computer to keep things between runs.
+
+# Write some lines to a file. The default mode is 'write'.
+open file "/tmp/boxy_diary.txt" called f
+write "today I tried Boxy.\n" to f
+write "boxes are kind of magic.\n" to f
+close f
+
+# Now read the file back, line by line.
+open file "/tmp/boxy_diary.txt" called f to read
+read f save text
+say "my diary says:"
+say text
+close f
+
+# Forget to 'close' a file and Boxy gently reminds you when the program ends.

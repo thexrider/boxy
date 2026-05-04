@@ -1,0 +1,23 @@
+# Lesson 10 — kept boxes vs borrowed boxes
+#
+# Two kinds of boxes in Boxy:
+#
+#   make a box   = a kept box. You don't have to clean it up.
+#   borrow a box = a borrowed box. You MUST return it when done.
+#
+# This is the most important idea in Boxy.
+
+make a box called age
+put 7 in age
+say "age is ", age
+
+borrow a box called score
+put 100 in score
+say "score is ", score
+
+# Always give back what you borrow:
+return score
+
+# Try this: comment out the 'return' line above, run the lesson again,
+# and read what Boxy says at the end. It will tell you which borrowed
+# box you forgot, and on which line you borrowed it.

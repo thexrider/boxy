@@ -1,0 +1,12 @@
+# Functions: 'teach' makes one, 'call' uses it, 'give' returns a value.
+
+teach add with a and b {
+    give a plus b
+}
+
+teach square with n {
+    give n times n
+}
+
+say "3 + 4 is ", call add with 3 and 4
+say "5 squared is ", call square with 5

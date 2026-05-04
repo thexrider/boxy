@@ -1,0 +1,12 @@
+# Lists hold a bunch of things in order.
+
+my shopping is ["milk", "bread", "eggs"]
+
+add "apples" to my shopping
+take "bread" from my shopping
+
+say "here is the list:"
+show my shopping
+
+say "items left to buy:"
+say how many my shopping

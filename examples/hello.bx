@@ -1,0 +1,2 @@
+# The smallest Boxy program. If this prints, Boxy is working.
+say "hello, world"

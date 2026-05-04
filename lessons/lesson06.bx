@@ -1,0 +1,25 @@
+# Lesson 6 — loops
+#
+# Three ways to do something many times:
+#   repeat N times { ... }
+#   count from A to B as i { ... }
+#   while CONDITION { ... }
+
+say "-- repeat --"
+repeat 3 times {
+    say "boxy!"
+}
+
+say "-- count from --"
+count from 1 to 5 as i {
+    say i
+}
+
+say "-- while --"
+n is 1
+while n is at most 4 {
+    say "n = ", n
+    n is n times 2
+}
+
+# 'stop' leaves a loop early. 'skip' jumps to the next round.

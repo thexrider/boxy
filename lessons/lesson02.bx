@@ -1,0 +1,15 @@
+# Lesson 2 — boxes
+#
+# A box is a place to keep a value. You give the box a name,
+# put something in it, and then you can ask for it later.
+
+make a box called age
+put 9 in age
+
+say "I am ", age, " years old"
+
+# Try changing the number on line 8 and run the lesson again.
+# You can also use the short form to make and fill a box:
+#
+#     name is "Boxy"
+#     say name

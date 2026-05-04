@@ -1,0 +1,16 @@
+# Lesson 5 — comparing things and choosing
+#
+# 'if' lets the program pick what to do.
+
+ask "how old are you?" save age
+
+if age is at least 18 {
+    say "you are a grown-up"
+} otherwise {
+    say "you are a kid (just like Boxy is for)"
+}
+
+# Other ways to compare:
+#   is, is not, is at least, is at most,
+#   is greater than, is less than,
+#   starts with, ends with, contains

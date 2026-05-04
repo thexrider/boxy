@@ -1,0 +1,29 @@
+# Lesson 11 — helpers and locks
+#
+# A helper is a tiny program that runs at the same time as the main one.
+# When two helpers want to change the same box, they need to take turns.
+# 'hold' grabs the lock, 'let go' releases it.
+
+counter is 0
+
+start helper called worker_a {
+    count from 1 to 5 as i {
+        hold counter
+        counter is counter plus 1
+        let go counter
+    }
+}
+
+start helper called worker_b {
+    count from 1 to 5 as i {
+        hold counter
+        counter is counter plus 1
+        let go counter
+    }
+}
+
+wait for worker_a
+wait for worker_b
+
+say "the counter is ", counter
+say "(if you remove 'hold' and 'let go', it sometimes prints less than 10)"

@@ -1,0 +1,13 @@
+# Lesson 1 — say "hello"
+#
+# Welcome to Boxy! This is your first program.
+# 'say' tells the computer to print something on the screen.
+#
+# The thing in quotes is called a "string" — a piece of text.
+
+say "hello, world"
+
+# Try changing the words inside the quotes and run the lesson again:
+#     ./boxy lesson 1
+#
+# What happens if you forget the quotes? Try it and see what Boxy says.

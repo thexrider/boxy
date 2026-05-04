@@ -1,0 +1,23 @@
+# Lesson 4 — math
+#
+# Boxy knows: plus, minus, times, divided by, mod, to (power), root of.
+
+a is 10 plus 5
+b is 10 minus 3
+c is 4 times 6
+d is 20 divided by 4
+e is 17 mod 5
+f is 2 to 8
+g is root of 81
+
+say "10 + 5 = ", a
+say "10 - 3 = ", b
+say "4 * 6 = ", c
+say "20 / 4 = ", d
+say "17 mod 5 = ", e
+say "2 to the 8 = ", f
+say "root of 81 = ", g
+
+# A surprise: pick a number between 1 and 6, like rolling a dice.
+roll is random between 1 and 6
+say "you rolled a ", roll

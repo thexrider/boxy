@@ -1,0 +1,18 @@
+# Two kinds of boxes:
+#   make a box   = a kept box. Boxy cleans it up at the end.
+#   borrow a box = a borrowed box. YOU must return it when you're done.
+
+make a box called age
+put 7 in age
+say "age is ", age
+
+borrow a box called score
+put 100 in score
+say "score is ", score
+
+# Always return the boxes you borrow.
+return score
+
+# Comment out the next line and run the program again.
+# Boxy will tell you, by name and line number, that you forgot.
+# borrow a box called forgotten

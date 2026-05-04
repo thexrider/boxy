@@ -1,0 +1,18 @@
+# Lesson 7 — functions
+#
+# A function is a little machine you 'teach' Boxy. You give it a name,
+# tell it what it needs ('with'), and what to do. 'give' sends back an answer.
+
+teach square with n {
+    give n times n
+}
+
+teach greet with name {
+    say "hello, ", name, "!"
+}
+
+say "5 squared is ", call square with 5
+say "9 squared is ", call square with 9
+
+call greet with "Ana"
+call greet with "Bea"

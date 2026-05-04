@@ -1,0 +1,15 @@
+# Lesson 8 — lists
+#
+# A list holds many things in order. Square brackets hold a list.
+
+my friends are ["Ana", "Bea", "Caio"]
+
+show my friends
+say "I have ", how many my friends, " friends"
+
+add "Diogo" to my friends
+say "now I have ", how many my friends
+
+take "Bea" from my friends
+say "after Bea moves away:"
+show my friends

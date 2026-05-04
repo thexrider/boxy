@@ -1,0 +1,37 @@
+# A tiny echo server and client, in the same program.
+#
+# A 'door' is a server socket.
+# A 'knock' is an incoming connection.
+# A 'guest' is who came in.
+# 'call door' is how a client connects out.
+
+start helper called server {
+    open door called srv on port 9001
+    say "server: door open on port 9001"
+
+    wait for knock on srv save guest
+    say "server: someone knocked"
+
+    read guest save msg
+    say "server: I heard '", msg, "'"
+
+    send msg to guest
+
+    close guest
+    close srv
+    say "server: shut down"
+}
+
+# Give the server a moment to open the door.
+sleep 200 ms
+
+say "client: knocking on the door"
+call door at "127.0.0.1" on port 9001 save line
+
+send "hello from the client" to line
+
+read line save reply
+say "client: the server replied: ", reply
+
+close line
+wait for server

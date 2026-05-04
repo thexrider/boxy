@@ -1,0 +1,27 @@
+# Two helpers count together. Without the lock, they sometimes
+# step on each other and the answer is too small. With 'hold' /
+# 'let go', the answer is always 10.
+
+counter is 0
+
+start helper called worker_a {
+    count from 1 to 5 as i {
+        hold counter
+        counter is counter plus 1
+        let go counter
+    }
+}
+
+start helper called worker_b {
+    count from 1 to 5 as i {
+        hold counter
+        counter is counter plus 1
+        let go counter
+    }
+}
+
+wait for worker_a
+wait for worker_b
+
+say "final counter (should be 10):"
+say counter
